@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import { AuthProvider } from './contexts/AuthContext';
 import './App.css'
 
@@ -9,9 +6,12 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-      <p>This is an app.</p>
-    </>
+    <AuthProvider>
+      <div className="App">
+        <h1>ENSF FINAL PROJECT</h1>
+        <p>Authentication base is now active!</p>
+      </div>
+    </AuthProvider>
   )
 }
 
