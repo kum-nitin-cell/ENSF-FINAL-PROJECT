@@ -32,7 +32,6 @@ const ProfilePage = () => {
                 return;
             }
             setResumeFilename(file.name);
-            setMessage(`File "${file.name}" selected.`);
         }
     };
 
@@ -49,11 +48,6 @@ const ProfilePage = () => {
         <div className={styles.profileContainer}>
             <header className={styles.header}>
                 <h1 className={styles.title}>Profile & Document Management</h1>
-                {message && (
-                    <div className={styles.banner}>
-                        {message}
-                    </div>
-                )}
             </header>
 
             <div className={styles.grid}>
@@ -65,25 +59,25 @@ const ProfilePage = () => {
                     </div>
                     
                     <div className={styles.uploadControls}>
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleFileUpload} 
-                            accept=".pdf"
-                            style={{ display: 'none' }} 
-                        />
-                        <button 
-                            className={styles.button} 
-                            onClick={() => fileInputRef.current.click()}
-                        >
-                            <Upload size={16} />
-                            Upload PDF
-                        </button>
                         {resumeFilename && (
                             <span className={styles.filename}>
                                 {resumeFilename}
                             </span>
                         )}
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                            accept=".pdf"
+                            style={{ display: 'none' }}
+                        />
+                        <button
+                            className={styles.button}
+                            onClick={() => fileInputRef.current.click()}
+                        >
+                            <Upload size={16} />
+                            Upload PDF
+                        </button>
                     </div>
 
                     <div className={styles.textareaContainer}>
