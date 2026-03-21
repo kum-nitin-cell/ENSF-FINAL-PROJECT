@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './ProfilePage.module.css';
-import { FileText, Target, Upload, Save, CheckCircle } from 'lucide-react';
+import { FileText, Target, Upload, Save } from 'lucide-react';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Configure PDF.js worker
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const ProfilePage = () => {
     // 1. State
@@ -23,15 +28,48 @@ const ProfilePage = () => {
         loadProfile();
     }, []);
 
-    // 3. PDF upload + parsing (placeholder)
+    // 3. PDF upload + parsing
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
-        if (file) {
-            if (file.type !== 'application/pdf') {
-                setMessage("Please select a PDF file.");
-                return;
-            }
-            setResumeFilename(file.name);
+        if (!file) return;
+
+        if (file.type !== 'application/pdf') {
+            alert("Please select a valid PDF file.");
+            return;
+        }
+
+        setResumeFilename(file.name);
+        setLoading(true);
+
+        try {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const arrayBuffer = event.target.result;
+                
+                // Load the PDF document
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+                
+                let fullText = '';
+                
+                // Loop through each page
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n\n';
+                }
+                
+                setResumeText(fullText.trim());
+                setLoading(false);
+            };
+            
+            reader.readAsArrayBuffer(file);
+            
+        } catch (error) {
+            console.error("PDF Parsing Error:", error);
+            alert("Failed to parse PDF. Please paste your resume text manually.");
+            setLoading(false);
         }
     };
 
