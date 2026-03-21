@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function InterviewSetupPage() {
+    const { user } = useAuth();
     const navigate = useNavigate();
+
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     const [type, setType] = useState('behavioral');
     const [difficulty, setDifficulty] = useState('medium');
@@ -12,9 +19,37 @@ export default function InterviewSetupPage() {
     const [industry, setIndustry] = useState('');
     const [roleTitle, setRoleTitle] = useState('');
 
+    useEffect(() => {
+        async function fetchProfile() {
+            try {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('resume_text, job_description')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') throw error;
+                setProfile(data);
+            } catch (err) {
+                console.error("Error loading profile data:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchProfile();
+    }, [user]);
+
     const handleStart = async (e) => {
         e.preventDefault();
+        if (!profile?.resume_text && !roleTitle) {
+            setError("Please either upload a resume in your profile, or specify an industry and role title below.");
+            return;
+        }
     };
+
+    if (loading) return <div className="p-8 center text-muted">Loading settings...</div>;
+
+    const hasContext = profile?.resume_text || profile?.job_description;
 
     return (
         <div className="setup-page fade-in" style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -24,6 +59,14 @@ export default function InterviewSetupPage() {
                     &larr; Cancel
                 </button>
             </div>
+
+            {!hasContext && (
+                <div className="alert error mb-4">
+                    <strong>Warning:</strong> You have not uploaded a resume or job description. We highly recommend adding these in your profile first to get tailored AI questions.
+                </div>
+            )}
+
+            {error && <div className="alert error mb-4">{error}</div>}
 
             <form onSubmit={handleStart}>
                 <div className="card mb-4">
