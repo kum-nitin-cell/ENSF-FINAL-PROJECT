@@ -9,6 +9,7 @@ export default function InterviewSetupPage() {
 
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [starting, setStarting] = useState(false);
     const [error, setError] = useState('');
 
     const [type, setType] = useState('behavioral');
@@ -44,6 +45,34 @@ export default function InterviewSetupPage() {
         if (!profile?.resume_text && !roleTitle) {
             setError("Please either upload a resume in your profile, or specify an industry and role title below.");
             return;
+        }
+
+        setStarting(true);
+        setError('');
+
+        try {
+            const { data, error } = await supabase
+                .from('interview_sessions')
+                .insert({
+                    user_id: user.id,
+                    interview_type: type,
+                    difficulty,
+                    num_questions: numQuestions,
+                    follow_up_enabled: followUp,
+                    industry: industry || null,
+                    role_title: roleTitle || null,
+                    status: 'active'
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            // Navigate to the newly created session
+            navigate(`/session/${data.id}`);
+        } catch (err) {
+            setError(err.message || 'Failed to start interview session');
+            setStarting(false);
         }
     };
 
@@ -142,8 +171,8 @@ export default function InterviewSetupPage() {
                     </div>
                 </div>
 
-                <button type="submit" className="btn primary block">
-                    Start Interview
+                <button type="submit" className="btn primary block" disabled={starting}>
+                    {starting ? 'Preparing Session...' : 'Start Interview'}
                 </button>
             </form>
         </div>
