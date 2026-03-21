@@ -1,0 +1,133 @@
+.profileContainer {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: var(--sans);
+    color: var(--text);
+    background-color: var(--bg);
+    min-height: 100vh;
+}
+
+.header {
+    margin-bottom: 32px;
+}
+
+.title {
+    font-size: 2.4rem;
+    font-weight: 500;
+    margin: 0;
+    color: var(--text-h);
+    letter-spacing: -1px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--text-h);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, background-color 0.2s;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+}
+
+.button:hover {
+    filter: brightness(1.1);
+}
+
+.button:active {
+    transform: scale(0.98);
+}
+
+.filenameText {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 500;
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--accent-bg);
+    border-radius: 4px;
+}
+
+.textarea {
+    width: 100%;
+    min-height: 350px;
+    margin-top: 10px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    background: var(--code-bg);
+    color: var(--text-h);
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.saveButton {
+    display: block;
+    width: 100%;
+    margin-top: 32px;
+    padding: 16px;
+    font-size: 1.1rem;
+    background: var(--accent);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px var(--accent-bg);
+}
+
+.messageBanner {
+    padding: 12px 16px;
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    font-weight: 500;
+}
