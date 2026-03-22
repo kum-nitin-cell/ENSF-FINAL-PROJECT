@@ -54,11 +54,12 @@ const ProfilePage = () => {
             };
             
             reader.readAsArrayBuffer(file);
-            
+            fileInputRef.current.value = '';
+
         } catch (error) {
             console.error("PDF Parsing Error:", error);
             alert("Failed to parse PDF. Please paste your resume text manually.");
-            setLoading(false);
+            setParsing(false);
         }
     };
 
