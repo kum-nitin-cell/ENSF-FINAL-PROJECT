@@ -96,9 +96,26 @@ export default function InterviewSessionPage() {
         setIsGeneratingNext(true);
         setError('');
         try {
-            let prompt = `You are an expert interviewer. Role: ${sessionData.role_title}. Context: ${profile.resume_text.substring(0, 1000)}. Generate the first question. Return text only.`;
-            const text = await generateText(prompt, false);
-            const { data, error: dbErr } = await supabase.from('session_questions').insert({ session_id: id, question_number: 1, question_text: text }).select().single();
+            const resumeExcerpt = profile.resume_text ? profile.resume_text.substring(0, 1000) : 'No resume provided';
+            const jdExcerpt = profile.job_description ? profile.job_description.substring(0, 500) : '';
+
+            let prompt = `You are an expert ${sessionData.interview_type} interviewer conducting a ${sessionData.difficulty}-level interview.
+Role: ${sessionData.role_title || 'General'}.
+${sessionData.industry ? `Industry: ${sessionData.industry}.` : ''}
+
+Candidate Resume (excerpt):
+${resumeExcerpt}
+
+${jdExcerpt ? `Job Description (excerpt):\n${jdExcerpt}\n` : ''}
+Generate the first interview question. The question should be appropriate for a ${sessionData.difficulty} difficulty ${sessionData.interview_type} interview. Tailor the question to the candidate's background and target role. Return the question text only, no labels or prefixes.`;
+
+            const text = await generateText(prompt);
+            const { data, error: dbErr } = await supabase.from('session_questions').insert({
+                session_id: id,
+                question_number: 1,
+                question_text: text,
+                asked_at: new Date().toISOString()
+            }).select().single();
             if (dbErr) throw dbErr;
             setQuestions([data]);
             setCurrentQuestionIndex(0);
