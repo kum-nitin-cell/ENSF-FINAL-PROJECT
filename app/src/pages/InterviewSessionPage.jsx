@@ -96,9 +96,26 @@ export default function InterviewSessionPage() {
         setIsGeneratingNext(true);
         setError('');
         try {
-            let prompt = `You are an expert interviewer. Role: ${sessionData.role_title}. Context: ${profile.resume_text.substring(0, 1000)}. Generate the first question. Return text only.`;
-            const text = await generateText(prompt, false);
-            const { data, error: dbErr } = await supabase.from('session_questions').insert({ session_id: id, question_number: 1, question_text: text }).select().single();
+            const resumeExcerpt = profile.resume_text ? profile.resume_text.substring(0, 1000) : 'No resume provided';
+            const jdExcerpt = profile.job_description ? profile.job_description.substring(0, 500) : '';
+
+            let prompt = `You are an expert ${sessionData.interview_type} interviewer conducting a ${sessionData.difficulty}-level interview.
+Role: ${sessionData.role_title || 'General'}.
+${sessionData.industry ? `Industry: ${sessionData.industry}.` : ''}
+
+Candidate Resume (excerpt):
+${resumeExcerpt}
+
+${jdExcerpt ? `Job Description (excerpt):\n${jdExcerpt}\n` : ''}
+Generate the first interview question. The question should be appropriate for a ${sessionData.difficulty} difficulty ${sessionData.interview_type} interview. Tailor the question to the candidate's background and target role. Return the question text only, no labels or prefixes.`;
+
+            const text = await generateText(prompt);
+            const { data, error: dbErr } = await supabase.from('session_questions').insert({
+                session_id: id,
+                question_number: 1,
+                question_text: text,
+                asked_at: new Date().toISOString()
+            }).select().single();
             if (dbErr) throw dbErr;
             setQuestions([data]);
             setCurrentQuestionIndex(0);
@@ -113,9 +130,35 @@ export default function InterviewSessionPage() {
         setIsGeneratingNext(true);
         setError('');
         try {
-            let prompt = `Interviewer conducting ${sessionData.interview_type} interview. Context: ${profile.resume_text.substring(0, 500)}. History: ${prevQs.map(q => q.question_text).join('|')}. Generate next question. Text only.`;
-            const text = await generateText(prompt, false);
-            const { data, error: dbErr } = await supabase.from('session_questions').insert({ session_id: id, question_number: prevQs.length + 1, question_text: text }).select().single();
+            const resumeExcerpt = profile.resume_text ? profile.resume_text.substring(0, 500) : 'No resume provided';
+            const jdExcerpt = profile.job_description ? profile.job_description.substring(0, 300) : '';
+
+            // Build conversation history with both questions and answers
+            const historyLines = prevQs.map((q, i) => {
+                let line = `Q${i + 1}: ${q.question_text}`;
+                if (q.user_answer) line += `\nA${i + 1}: ${q.user_answer}`;
+                return line;
+            }).join('\n\n');
+
+            let prompt = `You are an expert ${sessionData.interview_type} interviewer conducting a ${sessionData.difficulty}-level interview.
+Role: ${sessionData.role_title || 'General'}.
+
+Candidate Resume (excerpt):
+${resumeExcerpt}
+
+${jdExcerpt ? `Job Description (excerpt):\n${jdExcerpt}\n` : ''}
+Conversation so far:
+${historyLines}
+
+Generate the next interview question (question ${prevQs.length + 1} of ${sessionData.num_questions}). Build on the candidate's previous answers where relevant. Do NOT repeat any previous questions. The question should match ${sessionData.difficulty} difficulty. Return the question text only, no labels or prefixes.`;
+
+            const text = await generateText(prompt);
+            const { data, error: dbErr } = await supabase.from('session_questions').insert({
+                session_id: id,
+                question_number: prevQs.length + 1,
+                question_text: text,
+                asked_at: new Date().toISOString()
+            }).select().single();
             if (dbErr) throw dbErr;
             setQuestions(prev => [...prev, data]);
             setCurrentQuestionIndex(prevQs.length);
