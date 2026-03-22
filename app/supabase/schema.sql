@@ -56,6 +56,7 @@ alter table interview_sessions enable row level security;
 alter table session_questions enable row level security;
 
 -- Policies for profiles
+-- UPDATE: user can only update rows they own + must remain owned by them
 create policy "Users can view own profile" on profiles for select using (auth.uid() = id);
 create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
 create policy "Users can insert own profile" on profiles for insert with check (auth.uid() = id);
@@ -93,3 +94,25 @@ create policy "Users can update own questions" on session_questions for update u
 create policy "Users can delete own questions" on session_questions for delete using (
   exists (select 1 from interview_sessions s where s.id = session_questions.session_id and s.user_id = auth.uid())
 );
+
+-- INSERT: user can only create rows with their own user_id
+create policy "Users can insert own rows"
+on public.YOUR_TABLE
+for insert
+to authenticated
+with check (user_id = auth.uid());
+
+-- UPDATE: user can only update rows they own + must remain owned by them
+create policy "Users can update own rows"
+on public.YOUR_TABLE
+for update
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+-- DELETE: user can only delete rows they own
+create policy "Users can delete own rows"
+on public.YOUR_TABLE
+for delete
+to authenticated
+using (user_id = auth.uid());
