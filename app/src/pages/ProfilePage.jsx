@@ -136,8 +136,11 @@ const ProfilePage = () => {
             </div>
 
             <footer className={styles.footer}>
-                <button 
-                    className={`${styles.button} ${styles.saveButton}`} 
+                {message && (
+                    <span className={styles.saveMessage}>{message}</span>
+                )}
+                <button
+                    className={`${styles.button} ${styles.saveButton}`}
                     onClick={saveProfile}
                 >
                     <Save size={18} />
