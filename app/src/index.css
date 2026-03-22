@@ -595,6 +595,19 @@ textarea {
   background: white;
 }
 
+/* Session page layout */
+.session-page {
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .session-page {
+    height: auto;
+    min-height: calc(100vh - 80px);
+  }
+}
 .model-card:hover {
   border-color: var(--primary);
   background: rgba(79, 70, 229, 0.03);
