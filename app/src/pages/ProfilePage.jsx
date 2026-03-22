@@ -41,6 +41,10 @@ const ProfilePage = () => {
                 }
             } catch (error) {
                 console.error("Error loading profile:", error);
+                setMessage({
+                    text: `Failed to load profile: ${error.message || 'Check your connection'}`,
+                    type: 'error'
+                });
             } finally {
                 setIsLoading(false);
             }
@@ -55,7 +59,7 @@ const ProfilePage = () => {
         if (!file) return;
 
         if (file.type !== 'application/pdf') {
-            alert("Please select a valid PDF file.");
+            setMessage({ text: 'Please select a valid PDF file.', type: 'error' });
             return;
         }
 
@@ -86,7 +90,7 @@ const ProfilePage = () => {
 
         } catch (error) {
             console.error("PDF Parsing Error:", error);
-            alert("Failed to parse PDF. Please paste your resume text manually.");
+            setMessage({ text: 'Failed to parse PDF. Please paste your resume text manually.', type: 'error' });
             setIsParsing(false);
         }
     };
