@@ -9,6 +9,7 @@ import './App.css';
 
 // Pages
 import InterviewSetupPage from './pages/InterviewSetupPage';
+import InterviewSessionPage from './pages/InterviewSessionPage';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -16,15 +17,13 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Your default Vite template acts as the home page for now */}
         <Route path="/" element={
           <div className="App">
             <p>This is an app.</p>
           </div>
         } />
-
-        {/* Your new setup route! */}
         <Route path="/setup" element={<InterviewSetupPage />} />
+        <Route path="/session/:id" element={<InterviewSessionPage />} />
       </Routes>
     </Router>
   );
