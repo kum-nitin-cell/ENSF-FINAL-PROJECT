@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import styles from './ProfilePage.module.css';
 import { FileText, Target, Upload, Save } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -12,23 +12,12 @@ const ProfilePage = () => {
     const [resumeText, setResumeText] = useState('');
     const [resumeFilename, setResumeFilename] = useState('');
     const [jobDescription, setJobDescription] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [parsing, setParsing] = useState(false);
     const [message, setMessage] = useState('');
 
     const fileInputRef = useRef(null);
 
-    // 2. Load profile (placeholder)
-    const loadProfile = async () => {
-        setLoading(true);
-        // Simulate load...
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        loadProfile();
-    }, []);
-
-    // 3. PDF upload + parsing
+    // 2. PDF upload + parsing
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -39,7 +28,7 @@ const ProfilePage = () => {
         }
 
         setResumeFilename(file.name);
-        setLoading(true);
+        setParsing(true);
 
         try {
             const reader = new FileReader();
@@ -61,7 +50,7 @@ const ProfilePage = () => {
                 }
                 
                 setResumeText(fullText.trim());
-                setLoading(false);
+                setParsing(false);
             };
             
             reader.readAsArrayBuffer(file);
@@ -79,8 +68,6 @@ const ProfilePage = () => {
         // Fade message out...
         setTimeout(() => setMessage(''), 3000);
     };
-
-    if (loading) return <div className={styles.profileContainer}>LOADING...</div>;
 
     return (
         <div className={styles.profileContainer}>
@@ -112,9 +99,10 @@ const ProfilePage = () => {
                         <button
                             className={styles.button}
                             onClick={() => fileInputRef.current.click()}
+                            disabled={parsing}
                         >
                             <Upload size={16} />
-                            Upload PDF
+                            {parsing ? 'Parsing...' : 'Upload PDF'}
                         </button>
                     </div>
 
