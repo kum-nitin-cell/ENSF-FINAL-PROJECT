@@ -34,7 +34,9 @@ const ProfilePage = () => {
                     .eq('id', user.id)
                     .single();
 
-                if (data && !error) {
+                if (error) throw error;
+
+                if (data) {
                     setResumeText(data.resume_text || '');
                     setResumeFilename(data.resume_filename || '');
                     setJobDescription(data.job_description || '');
@@ -66,9 +68,9 @@ const ProfilePage = () => {
         setResumeFilename(file.name);
         setIsParsing(true);
 
-        try {
-            const reader = new FileReader();
-            reader.onload = async (event) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
                 const arrayBuffer = event.target.result;
                 const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
                 const pdf = await loadingTask.promise;
@@ -82,17 +84,21 @@ const ProfilePage = () => {
                 }
 
                 setResumeText(fullText.trim());
+            } catch (error) {
+                console.error("PDF Parsing Error:", error);
+                setMessage({ text: 'Failed to parse PDF. Please paste your resume text manually.', type: 'error' });
+            } finally {
                 setIsParsing(false);
-            };
+            }
+        };
 
-            reader.readAsArrayBuffer(file);
-            fileInputRef.current.value = '';
-
-        } catch (error) {
-            console.error("PDF Parsing Error:", error);
-            setMessage({ text: 'Failed to parse PDF. Please paste your resume text manually.', type: 'error' });
+        reader.onerror = () => {
+            setMessage({ text: 'Failed to read file. Please try again.', type: 'error' });
             setIsParsing(false);
-        }
+        };
+
+        reader.readAsArrayBuffer(file);
+        fileInputRef.current.value = '';
     };
 
     // 4. Save profile (upsert)
@@ -113,7 +119,7 @@ const ProfilePage = () => {
                 resume_text: resumeText,
                 resume_filename: resumeFilename,
                 job_description: jobDescription,
-                updated_at: new Date()
+                updated_at: new Date().toISOString()
             };
 
             // 3. Database Update (Supabase Upsert)
