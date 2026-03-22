@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { generateText, generateJSON } from '../lib/gemini';
 
 export default function InterviewSessionPage() {
     const { id } = useParams();
@@ -72,6 +73,14 @@ export default function InterviewSessionPage() {
         if (user) loadSession();
     }, [id, user]);
 
+    useEffect(() => {
+        // Keep Busy-Guard to prevent quota crashes
+        if (!loadingContext && sessionData && questions.length === 0 && !isGeneratingNext && !error) {
+            const timer = setTimeout(() => { generateFirstQuestion(); }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [loadingContext, sessionData, questions.length, isGeneratingNext, error]);
+
     const completeInterview = async (sessionId, qs) => {
         try {
             let totalScore = 0;
@@ -83,9 +92,51 @@ export default function InterviewSessionPage() {
         } catch (err) { console.error("Completion error:", err); }
     };
 
-    const generateFirstQuestion = async () => { console.log("AI trigger placeholder"); };
-    const generateNextQuestion = async (prevQs) => { console.log("AI trigger placeholder"); };
-    const handleAnswerSubmit = async () => { console.log("AI evaluation placeholder"); };
+    const generateFirstQuestion = async () => {
+        setIsGeneratingNext(true);
+        setError('');
+        try {
+            let prompt = `You are an expert interviewer. Role: ${sessionData.role_title}. Context: ${profile.resume_text.substring(0, 1000)}. Generate the first question. Return text only.`;
+            const text = await generateText(prompt, false);
+            const { data, error: dbErr } = await supabase.from('session_questions').insert({ session_id: id, question_number: 1, question_text: text }).select().single();
+            if (dbErr) throw dbErr;
+            setQuestions([data]);
+            setCurrentQuestionIndex(0);
+        } catch (err) {
+            setError("AI generation failed. Please wait one minute (for free tier reset) and refresh.");
+            console.error(err);
+        } finally { setIsGeneratingNext(false); }
+    };
+
+    const generateNextQuestion = async (prevQs) => {
+        if (prevQs.length >= sessionData.num_questions) { await completeInterview(sessionData.id, prevQs); return; }
+        setIsGeneratingNext(true);
+        setError('');
+        try {
+            let prompt = `Interviewer conducting ${sessionData.interview_type} interview. Context: ${profile.resume_text.substring(0, 500)}. History: ${prevQs.map(q => q.question_text).join('|')}. Generate next question. Text only.`;
+            const text = await generateText(prompt, false);
+            const { data, error: dbErr } = await supabase.from('session_questions').insert({ session_id: id, question_number: prevQs.length + 1, question_text: text }).select().single();
+            if (dbErr) throw dbErr;
+            setQuestions(prev => [...prev, data]);
+            setCurrentQuestionIndex(prevQs.length);
+        } catch (err) { setError("AI generation failed. Refresh after a minute."); console.error(err); } finally { setIsGeneratingNext(false); setUserAnswer(''); }
+    };
+
+    const handleAnswerSubmit = async () => {
+        if (!userAnswer.trim()) return;
+        setIsEvaluating(true);
+        setError('');
+        const currentQ = questions[currentQuestionIndex];
+        try {
+            const prompt = `Evaluate answer. Q: ${currentQ.question_text}. A: ${userAnswer}. Return JSON only: {score:1-10, strengths:[], improvements:[], idealOutline:""}`;
+            const evaluation = await generateJSON(prompt, true);
+            const { data, error: dbErr } = await supabase.from('session_questions').update({ user_answer: userAnswer, score: evaluation.score, feedback_strengths: evaluation.strengths, feedback_improvements: evaluation.improvements, feedback_ideal: evaluation.idealOutline, answered_at: new Date().toISOString() }).eq('id', currentQ.id).select().single();
+            if (dbErr) throw dbErr;
+            const updated = [...questions];
+            updated[currentQuestionIndex] = data;
+            setQuestions(updated);
+        } catch (err) { setError("Evaluation failed."); console.error(err); } finally { setIsEvaluating(false); }
+    };
 
     if (loadingContext || !sessionData) return <div className="p-8 center text-muted">Loading session...</div>;
     const currentQ = questions[currentQuestionIndex];
