@@ -10,8 +10,7 @@ if (apiKey && apiKey !== "YOUR_API_KEY") {
 // ── Available models ──────────────────────────────────────────────────────────
 export const AVAILABLE_MODELS = {
     "gemini-2.5-flash-lite": { label: "Gemini 2.5 Flash-Lite", description: "Fast & free — great default" },
-    "gemini-2.5-flash": { label: "Gemini 2.5 Flash", description: "Smarter flash model (free tier)" },
-    "gemini-2.5-pro": { label: "Gemini 2.5 Pro", description: "Best reasoning — requires paid API key" },
+    "gemini-2.5-flash": { label: "Gemini 2.5 Flash", description: "Smarter flash model (free tier)" }
 };
 
 const DEFAULT_MODEL = "gemini-2.5-flash-lite";
@@ -70,3 +69,5 @@ export const robustGenerateContent = async (prompt) => {
     const result = await getModel().generateContent(prompt);
     return result.response.text();
 };
+
+

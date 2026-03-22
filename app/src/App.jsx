@@ -1,40 +1,79 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import AuthPage from './pages/AuthPage';
-import './App.css';
+import Layout from './components/Layout';
 
-// Simple placeholder components
-const Home = () => <div className="p-4">Welcome to the AI Mock Interview App! (Public)</div>;
-const Dashboard = () => <div className="p-4">Private Dashboard: For Logged-in Users Only</div>;
+import AuthPage from './pages/AuthPage';
+import DashboardPage from './pages/DashboardPage';
+import InterviewSetupPage from './pages/InterviewSetupPage';
+import InterviewSessionPage from './pages/InterviewSessionPage';
+import ProfilePage from './pages/ProfilePage';
+import HistoryPage from './pages/HistoryPage';
+import SessionSummaryPage from './pages/SessionSummaryPage';
+import QuestionBankPage from './pages/QuestionBankPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <AuthProvider>
+      <Router>
         <Routes>
-          {/* Public Routes */}
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="/home" element={<Home />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Layout><DashboardPage /></Layout>
+            </ProtectedRoute>
+          } />
 
-          {/* Default: first page goes to auth */}
-          <Route path="/" element={<Navigate to="/auth" replace />} />
+          <Route path="/setup" element={
+            <ProtectedRoute>
+              <Layout><InterviewSetupPage /></Layout>
+            </ProtectedRoute>
+          } />
 
-          {/* Redirect any other route to auth */}
-          <Route path="*" element={<Navigate to="/auth" replace />} />
+          <Route path="/session/:id" element={
+            <ProtectedRoute>
+              <Layout><InterviewSessionPage /></Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/summary/:id" element={
+            <ProtectedRoute>
+              <Layout><SessionSummaryPage /></Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Layout><ProfilePage /></Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/practice" element={
+            <ProtectedRoute>
+              <Layout><QuestionBankPage /></Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/history" element={
+            <ProtectedRoute>
+              <Layout><HistoryPage /></Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Layout><SettingsPage /></Layout>
+            </ProtectedRoute>
+          } />
+
+          {/* Default redirect to dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+      </Router>
+    </AuthProvider>
   );
 }
 
