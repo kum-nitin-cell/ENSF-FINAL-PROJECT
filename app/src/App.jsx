@@ -12,24 +12,27 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/auth" element={<AuthPage />} />
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/home" element={<Home />} />
 
-            {/* Protected Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Redirect any other route to Home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          {/* Default: first page goes to auth */}
+          <Route path="/" element={<Navigate to="/auth" replace />} />
+
+          {/* Redirect any other route to auth */}
+          <Route path="*" element={<Navigate to="/auth" replace />} />
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   );
