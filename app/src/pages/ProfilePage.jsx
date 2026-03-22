@@ -193,7 +193,10 @@ const ProfilePage = () => {
                         <textarea
                             className={styles.textarea}
                             value={resumeText}
-                            onChange={(e) => setResumeText(e.target.value)}
+                            onChange={(e) => {
+                                setResumeText(e.target.value);
+                                if (resumeFilename) setResumeFilename('');
+                            }}
                             placeholder="Paste your resume content or upload a PDF to extract text..."
                         />
                     </div>
