@@ -26,7 +26,7 @@ export default function InterviewSessionPage() {
             try {
                 const { data: session, error: sessErr } = await supabase
                     .from('interview_sessions')
-                    .select('*')
+                    .select('id, user_id, interview_type, difficulty, num_questions, follow_up_enabled, role_title, status')
                     .eq('id', id)
                     .single();
                 if (sessErr) throw sessErr;
@@ -143,7 +143,7 @@ export default function InterviewSessionPage() {
     const isAnswered = currentQ && currentQ.user_answer;
 
     return (
-        <div className="session-page" style={{ height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
+        <div className="session-page">
             <div className="dashboard-header mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h2 style={{ margin: 0 }}>Interview: {sessionData.interview_type}</h2>

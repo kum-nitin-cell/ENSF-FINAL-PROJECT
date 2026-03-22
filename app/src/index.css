@@ -109,3 +109,17 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Session page layout */
+.session-page {
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .session-page {
+    height: auto;
+    min-height: calc(100vh - 80px);
+  }
+}
