@@ -95,24 +95,3 @@ create policy "Users can delete own questions" on session_questions for delete u
   exists (select 1 from interview_sessions s where s.id = session_questions.session_id and s.user_id = auth.uid())
 );
 
--- INSERT: user can only create rows with their own user_id
-create policy "Users can insert own rows"
-on public.YOUR_TABLE
-for insert
-to authenticated
-with check (user_id = auth.uid());
-
--- UPDATE: user can only update rows they own + must remain owned by them
-create policy "Users can update own rows"
-on public.YOUR_TABLE
-for update
-to authenticated
-using (user_id = auth.uid())
-with check (user_id = auth.uid());
-
--- DELETE: user can only delete rows they own
-create policy "Users can delete own rows"
-on public.YOUR_TABLE
-for delete
-to authenticated
-using (user_id = auth.uid());
