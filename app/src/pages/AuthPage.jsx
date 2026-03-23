@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
 
 export default function AuthPage() {
-  const { user, signIn, signUp, resetPassword } = useAuth();
+  const { user, signIn, signUp, resetPassword, isRecovery } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
@@ -17,6 +17,11 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // If this is a password recovery session, go to the reset page
+  if (user && isRecovery) {
+    return <Navigate to="/reset-password" replace />;
+  }
 
   // Redirect if already logged in
   if (user) {

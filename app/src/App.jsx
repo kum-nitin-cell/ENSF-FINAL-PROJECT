@@ -14,6 +14,7 @@ import SessionSummaryPage from './pages/SessionSummaryPage';
 import QuestionBankPage from './pages/QuestionBankPage';
 import SettingsPage from './pages/SettingsPage';
 import TermsAndPrivacyPage from './pages/TermsAndPrivacyPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           <Route path="/dashboard" element={
             <ProtectedRoute>
