@@ -13,6 +13,7 @@ import HistoryPage from './pages/HistoryPage';
 import SessionSummaryPage from './pages/SessionSummaryPage';
 import QuestionBankPage from './pages/QuestionBankPage';
 import SettingsPage from './pages/SettingsPage';
+import TermsAndPrivacyPage from './pages/TermsAndPrivacyPage';
 
 function App() {
   return (
@@ -68,6 +69,8 @@ function App() {
               <Layout><SettingsPage /></Layout>
             </ProtectedRoute>
           } />
+
+          <Route path="/terms" element={<TermsAndPrivacyPage />} />
 
           {/* Default redirect to dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
