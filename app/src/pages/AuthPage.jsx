@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
 
 export default function AuthPage() {
   const { user, signIn, signUp, resetPassword } = useAuth();
@@ -117,7 +117,7 @@ export default function AuthPage() {
           {!isLogin && !isForgotPassword && (
             <div className="form-options">
               <label className="checkbox-label">
-                <input type="checkbox" required /> I agree to Terms and Privacy Policy
+                <input type="checkbox" required /> I agree to the <Link to="/terms" target="_blank" style={{ color: '#4f46e5' }}>Terms and Privacy Policy</Link>
               </label>
             </div>
           )}

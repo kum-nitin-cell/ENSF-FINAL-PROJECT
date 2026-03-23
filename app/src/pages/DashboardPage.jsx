@@ -131,7 +131,7 @@ export default function DashboardPage() {
                               </div>
                               <div className="session-score" style={{ display: 'flex', alignItems: 'center' }}>
                                  {session.status === 'completed'
-                                    ? <span className="score-badge">{session.overall_score || 0}/10</span>
+                                    ? <span className="score-badge">{session.overall_score || 0}%</span>
                                     : <span className="status-badge">{session.status}</span>
                                  }
                               </div>
